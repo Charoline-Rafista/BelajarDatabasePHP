@@ -2,60 +2,99 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product; //Tambahkan Manual
 use Illuminate\Http\Request;
-use App\Models\Product; // Panggil model Product
+use Illuminate\Support\Facades\DB;
 
-class ProdukController extends Controller
+class ProductController extends Controller
 {
-    // 1. Menampilkan Form Tambah
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $title = 'Daftar Produk';
+
+        // $products = [
+        //     ['id' => 1, 'name' => 'Laptop', 'price' => 15000000],
+        //     ['id' => 2, 'name' => 'Mouse', 'price' => 5000000],
+        //     ['id' => 3, 'name' => 'Keyboard', 'price' => 3000000],
+        //     ['id' => 4, 'name' => 'Monitor', 'price' => 2000000]
+        // ];
+        // $products = Product::all(); //cara 1
+        // $products = DB::select('SELECT * FROM products'); //cara 2
+        // $products = DB::table('products')->get(); //cara 3
+        $products = Product::paginate(10); //cara 4 pagination
+
+        return view('produk.index', compact('title', 'products'));
+        // return view('produk.index', [
+        //     'products' => $products,
+        //     'title' => $title
+        // ]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
     public function create()
     {
-        return view('produk.create');
+        $title = 'Tambah Produk';
+        return view('produk.create', compact('title'));
     }
 
-    // 2. Menyimpan Data Produk Baru (Handle Post Request)
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
-        // Validasi inputan form
-        $request->validate([
-            'name' => 'required',
-            'price' => 'required|numeric',
-        ]);
-
-        // Gunakan model untuk menyimpan data ke database
-        Product::create([
-            'name' => $request->name,
-            'price' => $request->price
-        ]);
-
-        return "Produk berhasil disimpan!";
+        $validated = $request->validate(['name', 'price', 'description', 'status', 'is_active', 'release_date']); // validasi input
+        $validated['is_active'] = $request->has('is_active') ? 1 : 0; // tangani checkbox
+        Product::create($validated); // simpan ke DB
+        return redirect()->route('produk.index')
+        ->with('success', 'Produk berhasil ditambahkan.');
     }
 
-    // 3. Menampilkan Form Edit dengan Data Lama
-    public function edit($id)
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
     {
-        // Cari produk berdasarkan ID, jika tidak ketemu akan error 404
-        $product = Product::findOrFail($id);
-        return view('produk.edit', compact('product'));
+        $title = 'Detail Produk';
+        $product = Product::findOrFail($id); // 404 otomatis jika tidak ditemukan
+        return view('produk.detail', compact('product', 'title'));
     }
 
-    // 4. Mengupdate Data Produk (Handle Post Request)
-    public function update(Request $request, $id)
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
     {
-        $request->validate([
-            'name' => 'required',
-            'price' => 'required|numeric',
-        ]);
-
-        // Cari data yang mau diubah
+        $title = "Edit Produk";
         $product = Product::findOrFail($id);
+        return view('produk.edit', compact('product', 'title'));
+    }
 
-        // Gunakan model untuk mengupdate data produk
-        $product->update([
-            'name' => $request->name,
-            'price' => $request->price
-        ]);
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        $product = Product::findOrFail($id);
+        $validated = $request->validate(['name', 'price', 'description', 'status', 'is_active', 'release_date',]);
+        $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+        $product->update($validated);
+        return redirect()->route('produk.index')
+            ->with('success', 'Produk berhasil diperbarui.');
+    }
 
-        return "Produk berhasil diupdate!";
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        $product = Product::findOrFail($id);
+        $product->delete();
+        return redirect()->route('produk.index')
+            ->with('success', 'Produk berhasil dihapus.');
     }
 }

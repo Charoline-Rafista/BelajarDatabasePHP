@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-    Schema::create('suppliers', function (Blueprint $table) {
-        $table->id();
-        $table->string('name', 150);
-        $table->string('phone', 15);
-        $table->text('address')->nullable(); // nullable berarti boleh dikosongkan
-        $table->timestamps();
+        Schema::create('suppliers', function (Blueprint $table) {
+            $table->id();
+            $table->string('name', 150);
+            $table->string('contact_number', 15);
+            $table->text('address')->nullable();
+
+            $table->timestamps();
         });
     }
 

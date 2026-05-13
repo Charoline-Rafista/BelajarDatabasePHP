@@ -4,9 +4,9 @@
 
 @section('sidebar')
     @parent
-    @section('submenu-produk')
-        <a href="/produk/create" class="list-group-item list-group-item-action ps-4>">Tambah Produk</a>
-        <a href="/produk/search" class="list-group-item list-group-item-action ps-4>">Cari Produk</a>
+    @section('submenu-supplier')
+        <a href="/supplier/create" class="list-group-item list-group-item-action ps-4>">Tambah Supplier</a>
+        <a href="/supplier/search" class="list-group-item list-group-item-action ps-4>">Cari Supplier</a>
     @endsection
 
 @endsection
